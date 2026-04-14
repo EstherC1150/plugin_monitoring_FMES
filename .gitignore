@@ -1,0 +1,19 @@
+# Bytecode / Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary / Build
+tmp/
+plugin.zip
+
+# Node
+node_modules/
+package-lock.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Private config (Optional - but recommended keeping unique per dev)
+# config.py

@@ -1,0 +1,7 @@
+{
+  "devDependencies": {
+    "bruce-cesium": "^3.7.2",
+    "bruce-models": "^3.7.6",
+    "cesium": "^1.114.0"
+  }
+}
