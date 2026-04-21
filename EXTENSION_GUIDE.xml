@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FemsExtensionGuide>
+    <Overview>
+        이 문서는 계층형 대시보드 시스템(사이드바 -> 탭 -> 페이지)을 확장하는 가이드라인입니다.
+        현재 프로젝트는 core.js를 중심으로 개발(plugin.js)과 배포(deployEntry.js) 로직을 공유하고 있습니다.
+    </Overview>
+
+    <!-- 1단계: 메뉴 설정 정의 -->
+    <Step1_MenuConfig>
+        <FilePath>plugin/config/menuConfig.js</FilePath>
+        <Action>새로운 메인 카테고리 또는 서브 탭을 menuConfig 객체에 추가합니다.</Action>
+        <Example>
+            <![CDATA[
+            myNewService: {
+                id: "myNewService",
+                title: "새 서비스",
+                icon: "<svg>...</svg>", 
+                subTabs: [
+                    { id: "tab1", title: "상세 현황", component: "renderMyNewPage" }
+                ],
+                defaultTab: "tab1"
+            }
+            ]]>
+        </Example>
+    </Step1_MenuConfig>
+
+    <!-- 2단계: 신규 페이지 컴포넌트 생성 -->
+    <Step2_PageComponent>
+        <Directory>plugin/components/pages/</Directory>
+        <Action>Step 1에서 정의한 'component' 이름과 동일한 함수를 가진 JS 파일을 생성합니다.</Action>
+        <Example>
+            <![CDATA[
+            export function renderMyNewPage() {
+                return `<div class="my-page">...</div>`;
+            }
+            ]]>
+        </Example>
+    </Step2_PageComponent>
+
+    <!-- 3단계: 컨트롤러 연동 -->
+    <Step3_PluginRegistration>
+        <FilePath>plugin/core.js 및 plugin/plugin.js/deployEntry.js</FilePath>
+        <Action>
+            1. plugin.js(개발용) 및 deployEntry.js(배포용) 상단에 신규 컴포넌트를 import 합니다.
+            2. 해당 파일들의 'componentsMap' 객체에 함수를 등록합니다.
+        </Action>
+        <Note>
+            기능 로직 수정은 core.js에서 담당하므로, 새로운 페이지가 추가될 때만 엔트리 파일들을 수정하면 됩니다.
+        </Note>
+    </Step3_PluginRegistration>
+
+    <!-- 주의 사항 -->
+    <Cautions>
+        <Item id="1">모든 파일 경로는 대소문자를 구분합니다.</Item>
+        <Item id="2">개발 중 실시간 반영을 확인하려면 serve.py를 실행한 상태여야 합니다.</Item>
+        <Item id="3">SVG 아이콘은 width/height를 24로 설정하는 것이 권장됩니다.</Item>
+    </Cautions>
+</FemsExtensionGuide>
