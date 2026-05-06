@@ -1,61 +1,65 @@
-# Navigator Plugin developer environment
+# NextSpace FEMS Plugin 개발 환경
 
-This is the first assisted development package for making plugins for Nextspace.
+이 프로젝트는 NextSpace 환경에서 동작하는 FEMS(공장 에너지 관리 시스템) 커스텀 대시보드 UI 플러그인입니다.
+저장소를 처음 클론(Clone)받아 로컬 환경을 셋팅하고 개발을 시작하기 위한 워크플로우 가이드입니다.
 
-This is a very basic plugin that detects Entity selection changes and states how many Entities are selected.
+---
 
-It is intended to be run in the Navigator Cursor Bar (top-left toolbar).
+## 🚀 1. 초기 셋팅 (Getting Started)
 
-It can however work anywhere in Navigator, I recommend removing the absolute positioning CSS if you plan to try use it within the selected Entity panel instead.
+### 1) 패키지 및 라이브러리 설치
+프로젝트는 자바스크립트 빌드 도구(esbuild)와 파이썬 통신 스크립트(requests)를 함께 사용합니다. Python(3.x)과 Node.js가 설치되어 있어야 합니다.
 
-<br/>
+```bash
+# 1. Node.js 패키지 설치
+npm install
 
-## Prerequisites
-
-This will rely on installing some NPM packages for type referencing, and python to perform the deployment of your plugin.
-
-- https://nodejs.org/en/download
-
-- https://www.python.org/downloads/
-
-
-<br/>
-
-## Development
-
-To start please fill out the config [here](./config.py).
-
-<br/>
-
-Afterwards run:
-
-```
-npm i
+# 2. Python 라이브러리 설치 (배포 스크립트용)
+pip install requests
 ```
 
-This will install the packages that are available to the plugin when it's run in Navigator. This allows your IDE to reference the types and give you information on the objects you are interacting with.
+### 2) ⚠️ 인증 정보 설정 (`config.py`) - 가장 중요!
+이 프로젝트를 서버와 연동하거나 배포하기 위해서는 NextSpace의 인증 세션키(`SSID`)가 필요합니다. **(보안상 깃허브에는 세션키를 올리지 않습니다.)**
 
-After installing this you can `ctrl + left-click` on the type definitions to see more about them, and they will guide you as you write code in your IDE.
+1. 크롬 브라우저에서 **NextSpace 대시보드**에 로그인 후 브라우저 개발자 도구(F12)를 엽니다.
+2. `Application` 탭 -> `Cookies` 항목에서 **`X-SessionID`** 값을 복사합니다.
+3. 프로젝트 루트에 있는 **`config.py`** 파일을 열고 `SSID` 변수 값에 복사한 세션 키를 붙여넣습니다.
 
-For example you can `ctrl + left-click` on `import("bruce-cesium").VisualsRegister.Register` within `index.js`.
+> **🚨 주의사항 (Troubleshooting)**
+> 개발 중 터미널에서 `AccessDenied` 에러가 발생한다면 십중팔구 `SSID` 세션이 만료된 것입니다. 브라우저에서 새로운 `X-SessionID`를 복사하여 `config.py`를 갱신해 주시면 즉시 해결됩니다!
 
-<br/>
+---
 
-When you want to push a change to your plugin run:
+## 🛠 2. 개발 및 배포 워크플로우
 
-```
-python3 ./deploy.py
-```
+FEMS 플러그인 프로젝트는 생산성을 극대화하기 위해 **[실시간 개발 모드]** 와 **[최종 배포 모드]** 두 가지를 지원하는 하이브리드(Hybrid) 구조로 설계되었습니다.
 
-You may need to use `python` rather than `python3` if one is unrecognized for you.
+### 💻 A. 로컬 실시간 개발 (Dev Mode)
+자바스크립트나 CSS를 수정할 때마다 매번 서버에 업로드할 필요 없이, 브라우저에서 새로고침만으로 즉시 확인하는 가장 빠른 개발 방식입니다.
 
-This script references [config.py](./config.py) for your account and plugin details.
+1. 로컬 개발용 파이썬 서버를 실행합니다. (끄지 말고 켜둡니다)
+   ```bash
+   python serve.py
+   ```
+2. NextSpace 화면에서 강력 새로고침(`Ctrl + F5`)을 누릅니다.
+3. 플러그인이 자동으로 `localhost:8080`을 바라보고 로컬 코드를 실시간으로 가져옵니다! (코드를 수정하고 저장한 뒤 브라우저만 새로고침 하시면 됩니다)
 
-<br/>
-<br/>
+### 🚀 B. 최종 빌드 및 서버 배포 (Deploy Mode)
+기능 개발이 완료되어 다른 사람도 볼 수 있도록 서버에 정식으로 적용할 때 사용합니다.
 
-## Notes
+1. 모듈화된 소스코드들을 배포용 단일 파일(`index.bundle.js`)로 압축(Bundling)합니다.
+   ```bash
+   npm run build
+   ```
+2. 파이썬 스크립트를 통해 NextSpace 서버로 원격 배포합니다.
+   ```bash
+   python deploy.py
+   ```
+   *(이 스크립트는 내부적으로 코드들을 `.zip`으로 묶어 서버의 플러그인 API 엔드포인트로 전송합니다)*
 
-This was developed and tested on an Ubuntu based linux distribution. This is why certain installation steps of the pre-requisites are not filled out as they are likely to differ between developers.
+---
 
-In time we can expand the different operating system installation information.
+## 📁 주요 폴더 구조
+- `/plugin/components/`: 메인 화면, 헤더 탭, 공지사항 등 UI 화면 구성
+- `/plugin/core.js`: 공통 이벤트 라우팅 및 탭 간 전역 상태 관리를 담당하는 핵심 로직
+- `/plugin/config/menuConfig.js`: 좌측 사이드바 및 서브 탭 메뉴 구조 정의

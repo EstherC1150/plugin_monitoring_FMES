@@ -17,7 +17,7 @@ export async function Run(params) {
     const { menuConfig, sidebarItems } = await import(`./config/menuConfig.js${cacheBust}`);
     const { renderExternalShell, SHELL_STYLES } = await import(`./components/layout/ExternalShell.js${cacheBust}`);
     const { renderOverviewPage } = await import(`./components/pages/OverviewPage.js${cacheBust}`);
-    const { renderNoticePage } = await import(`./components/pages/NoticePage.js${cacheBust}`);
+    const { renderNoticePage, renderNoticePageInit } = await import(`./components/pages/NoticePage.js${cacheBust}`);
     const { renderEnergyPage } = await import(`./components/pages/EnergyPage.js${cacheBust}`);
     const { log } = await import(`./utils/Logger.js${cacheBust}`);
     const { initializePlugin } = await import(`./core.js${cacheBust}`);
@@ -26,6 +26,7 @@ export async function Run(params) {
     const componentsMap = {
         renderOverviewPage,
         renderNoticePage,
+        renderNoticePageInit,
         renderEnergyPage,
         renderBuildingPage: () => `<div style="padding:50px; text-align:center; color:#999;">건물별 상세 현황 페이지 준비 중...</div>`
     };

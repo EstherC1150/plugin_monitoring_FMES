@@ -49,6 +49,13 @@ export function initializePlugin(params, deps) {
     function initUI() {
         const shellHtml = renderExternalShell(currentState);
         winManager.injectTemplate(shellHtml, SHELL_STYLES);
+        
+        // 동적 필터바 처리
+        const filterBar = popup.document.getElementById("DashboardFilterBar");
+        if (filterBar) {
+            filterBar.style.display = (currentState.currentSubId === "notice") ? "none" : "flex";
+        }
+
         renderPage();
         bindEvents();
     }
@@ -63,7 +70,14 @@ export function initializePlugin(params, deps) {
         if (contentViewport) {
             const renderer = componentsMap[rendererName];
             if (typeof renderer === "function") {
-                contentViewport.innerHTML = renderer();
+                const site = popup.document.getElementById("SiteFilterSelect")?.value || "all";
+                const date = popup.document.getElementById("DateFilterInput")?.value || "";
+                contentViewport.innerHTML = renderer({ site, date });
+                
+                const initHook = componentsMap[rendererName + "Init"];
+                if (typeof initHook === "function") {
+                    initHook(contentViewport);
+                }
             } else {
                 contentViewport.innerHTML = `<div style="padding:50px; text-align:center; color:#999;">Renderer [${rendererName}] not found.</div>`;
             }
@@ -190,6 +204,12 @@ export function initializePlugin(params, deps) {
         tabs.forEach(t => {
             t.classList.toggle("active", t.getAttribute("data-sub-id") === subId);
         });
+
+        // 공지사항 탭일 경우 기존 필터바 숨김 처리
+        const filterBar = popup.document.getElementById("DashboardFilterBar");
+        if (filterBar) {
+            filterBar.style.display = (subId === "notice") ? "none" : "flex";
+        }
 
         renderPage();
         log(`Switched to Sub Tab: ${subId}`);

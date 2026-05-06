@@ -217,15 +217,46 @@ const PAGE_STYLES = `
     }
 `;
 
-export function renderOverviewPage() {
+export function renderOverviewPage(filters = {}) {
+  const { site = "all", date = "" } = filters;
+
+  // 눈에 확 띄도록 변화폭을 아주 크게 줍니다 (임시 효과)
+  let modifier = 1.0;
+  
+  if (site !== "all") {
+    // 사업장 선택 시 숫자가 30%~60% 로 확 줄어들게
+    const siteHash = site.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    modifier = 0.3 + (siteHash % 30) / 100; 
+  }
+
+  if (date) {
+    // 날짜의 '일(day)' 정보를 기반으로 데이터를 뒤흔듦 (±50% 까지!)
+    const day = parseInt(date.split("-")[2] || "1", 10);
+    const dateSwing = (day % 15 - 7) / 10; // -0.7 ~ +0.7
+    modifier += dateSwing;
+    if (modifier < 0.1) modifier = 0.1; // 최소 10% 방어
+  }
+
+  const formatNum = (num, maxFrac = 0) => 
+    (num * modifier).toLocaleString(undefined, { maximumFractionDigits: maxFrac });
+
+  // 사이트 한글명 매핑
+  const siteMap = {
+      "all": "전체 사업장",
+      "ulsan": "울산 사업장",
+      "seosan": "서산 사업장",
+      "seongnam": "성남 사업장"
+  };
+  const siteName = siteMap[site] || site;
+
   // 샘플 데이터 (API 연동 시 교체)
   const kpis = [
     {
       title: "전력 사용현황",
-      value: "12,450",
+      value: formatNum(12450),
       unit: "kWh",
       subLabel: "전일",
-      subValue: "11,890 kWh",
+      subValue: formatNum(11890) + " kWh",
       deltaText: "4.7%",
       deltaDir: "up",
       iconBg: "#1f4c8f",
@@ -233,10 +264,10 @@ export function renderOverviewPage() {
     },
     {
       title: "LNG 사용현황",
-      value: "850",
+      value: formatNum(850),
       unit: "m³",
       subLabel: "전일",
-      subValue: "890 m³",
+      subValue: formatNum(890) + " m³",
       deltaText: "4.5%",
       deltaDir: "down",
       iconBg: "#f97316",
@@ -244,10 +275,10 @@ export function renderOverviewPage() {
     },
     {
       title: "스팀 사용현황",
-      value: "42.5",
+      value: formatNum(42.5, 1),
       unit: "Ton",
       subLabel: "전일",
-      subValue: "41.8 Ton",
+      subValue: formatNum(41.8, 1) + " Ton",
       deltaText: "0.7%",
       deltaDir: "up",
       iconBg: "#14b8a6",
@@ -255,10 +286,10 @@ export function renderOverviewPage() {
     },
     {
       title: "압축공기 사용현황",
-      value: "2,150",
+      value: formatNum(2150),
       unit: "Nm³",
       subLabel: "전일",
-      subValue: "2,200 Nm³",
+      subValue: formatNum(2200) + " Nm³",
       deltaText: "2.3%",
       deltaDir: "down",
       iconBg: "#64748b",
@@ -270,32 +301,22 @@ export function renderOverviewPage() {
     {
       label: "전월 실적 (2월)",
       labelClass: "row-label",
-      cells: ["45,200", "125,400", "350,200", "12,500", "185.4"],
+      cells: [formatNum(45200), formatNum(125400), formatNum(350200), formatNum(12500), formatNum(185.4, 1)],
     },
     {
       label: "금년 누계 (1~3월)",
       labelClass: "row-label emph",
-      cells: ["128,500", "365,800", "1,020,500", "38,200", "542.8"],
+      cells: [formatNum(128500), formatNum(365800), formatNum(1020500), formatNum(38200), formatNum(542.8, 1)],
     },
   ];
 
   // 연간 월별 (평일/휴일) 샘플 값
   const months = [
-    "1월",
-    "2월",
-    "3월",
-    "4월",
-    "5월",
-    "6월",
-    "7월",
-    "8월",
-    "9월",
-    "10월",
-    "11월",
-    "12월",
+    "1월", "2월", "3월", "4월", "5월", "6월",
+    "7월", "8월", "9월", "10월", "11월", "12월",
   ];
-  const weekday = [120, 115, 118, 110, 105, 108, 125, 130, 118, 112, 114, 122];
-  const weekend = [95, 92, 90, 86, 82, 84, 98, 102, 96, 90, 92, 97];
+  const weekday = [120, 115, 118, 110, 105, 108, 125, 130, 118, 112, 114, 122].map(v => v * modifier);
+  const weekend = [95, 92, 90, 86, 82, 84, 98, 102, 96, 90, 92, 97].map(v => v * modifier);
 
   const makeLinePath = (values, w, h, pad) => {
     const min = Math.min(...weekday, ...weekend) - 5;
@@ -357,7 +378,7 @@ export function renderOverviewPage() {
             </div>
 
             <div class="panel content-block">
-                <div class="block-title">전월 / 누계 실적 현황</div>
+                <div class="block-title">전월 / 누계 실적 현황 <span style="color:#6b7280; font-size:12px; font-weight:600; margin-left:8px;">[조회: ${siteName} / ${date || '오늘'}]</span></div>
                 <table class="data-table">
                     <thead>
                         <tr>

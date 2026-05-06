@@ -16,7 +16,7 @@ export class WindowManager {
         }
 
         const width = 1280;
-        const height = 850;
+        const height = 920;
         const left = (window.screen.width / 2) - (width / 2);
         const top = (window.screen.height / 2) - (height / 2);
 

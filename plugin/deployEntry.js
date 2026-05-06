@@ -7,7 +7,7 @@ import { WindowManager } from "./utils/WindowManager.js";
 import { menuConfig, sidebarItems } from "./config/menuConfig.js";
 import { renderExternalShell, SHELL_STYLES } from "./components/layout/ExternalShell.js";
 import { renderOverviewPage } from "./components/pages/OverviewPage.js";
-import { renderNoticePage } from "./components/pages/NoticePage.js";
+import { renderNoticePage, renderNoticePageInit } from "./components/pages/NoticePage.js";
 import { renderEnergyPage } from "./components/pages/EnergyPage.js";
 import { log } from "./utils/Logger.js";
 import { initializePlugin } from "./core.js";
@@ -21,6 +21,7 @@ export function Run(params) {
     const componentsMap = {
         renderOverviewPage,
         renderNoticePage,
+        renderNoticePageInit,
         renderEnergyPage,
         renderBuildingPage: () => `<div style="padding:50px; text-align:center; color:#999;">건물별 상세 현황 페이지 준비 중...</div>`
     };

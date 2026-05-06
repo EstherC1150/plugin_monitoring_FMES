@@ -16,4 +16,4 @@ package-lock.json
 Thumbs.db
 
 # Private config (Optional - but recommended keeping unique per dev)
-# config.py
+config.py
