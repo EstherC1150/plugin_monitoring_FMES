@@ -412,12 +412,12 @@ export function renderNoticePage() {
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
                     </div>
-                    <div class="notice-admin" id="NoticeAdminBtn">
+                    <div class="notice-admin" id="NoticeAdminBtn" style="display: none;">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
-                        관리자(New)
+                        관리자 설정
                     </div>
                 </div>
             </div>
@@ -523,8 +523,30 @@ function updateSearchResults(container) {
     bindListItemClicks(container);
 }
 
-// Event Binder called by core.js after rendering
+
+
+function checkIsAdmin() {
+    try {
+        const session = window.__FEMS_PARAMS__?.pluginParams?.session;
+        if (!session || !session.User || !session.User.Permissions) return false;
+
+        // 권한 배열을 순회하면서 IsAdmin 플래그가 true인지 확인합니다.
+        const permissions = session.User.Permissions;
+        for (let i = 0; i < permissions.length; i++) {
+            if (permissions[i].IsAdmin === true) {
+                return true;
+            }
+        }
+        return false;
+    } catch (e) {
+        console.error("[FEMS Plugin] Admin check error:", e);
+        return false;
+    }
+}
+
 export function renderNoticePageInit(container) {
+    // ... 기존 초기화 코드 생략 (아래쪽에 있는 코드가 실행됨) ...
+    // Search bindings...
     // 1. Search Input Binding
     const searchInput = container.querySelector("#NoticeSearchInput");
     if (searchInput) {
@@ -578,43 +600,74 @@ export function renderNoticePageInit(container) {
         });
     }
 
-    // 6. Admin Button Debugging
+    // 6. Admin Button Permissions & Binding
     const adminBtn = container.querySelector("#NoticeAdminBtn");
     if (adminBtn) {
-        adminBtn.addEventListener("click", () => {
-            let info = "=== NextSpace Context ===\n\n";
+        if (checkIsAdmin()) {
+            adminBtn.style.display = "flex"; // 관리자면 보이게 처리
             
-            // 1. NextSpace 전역 객체 확인
-            if (typeof window.nextspace !== 'undefined') {
-                info += "✅ window.nextspace (존재함)\n";
-                // 객체가 크면 alert에서 잘리므로 키값만 일부 보여줍니다.
-                info += "Keys: " + Object.keys(window.nextspace).join(", ") + "\n\n";
-            } else {
-                info += "❌ window.nextspace (없음)\n\n";
-            }
-
-            // 2. Local Storage
-            let lsAuthInfo = [];
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.toLowerCase().includes("user") || key.toLowerCase().includes("auth") || key.toLowerCase().includes("token") || key.toLowerCase().includes("role") || key.toLowerCase().includes("profile")) {
-                    lsAuthInfo.push(key + ": " + localStorage.getItem(key));
+            adminBtn.addEventListener("click", () => {
+                // 사용자가 요청한 권한 정보 콘솔 출력 유지 (Permissions 부분)
+                const pluginParams = window.__FEMS_PARAMS__?.pluginParams;
+                if (pluginParams?.session?.User?.Permissions) {
+                    console.log("=== 🔐 넥스트스페이스 권한(Permissions) 정보 ===");
+                    console.log("현재 접속한 유저의 권한 목록:", pluginParams.session.User.Permissions);
+                    console.log("==================================================");
                 }
-            }
-            info += "✅ LocalStorage 관련 데이터:\n" + (lsAuthInfo.length > 0 ? lsAuthInfo.join("\n") : "없음") + "\n\n";
 
-            // 3. Session Storage
-            let ssAuthInfo = [];
-            for (let i = 0; i < sessionStorage.length; i++) {
-                const key = sessionStorage.key(i);
-                if (key.toLowerCase().includes("user") || key.toLowerCase().includes("auth") || key.toLowerCase().includes("token") || key.toLowerCase().includes("role") || key.toLowerCase().includes("profile")) {
-                    ssAuthInfo.push(key + ": " + sessionStorage.getItem(key));
+                // 기존 모달이 있으면 제거
+                const existingModal = document.getElementById("FemsAdminModal");
+                if (existingModal) existingModal.remove();
+
+                // 아름답고 z-index가 가장 높은 커스텀 모달 생성
+                const modalHtml = `
+                    <div id="FemsAdminModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 99999999; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease;">
+                        <div style="background: linear-gradient(145deg, #1e1e24, #2a2a35); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 30px; width: 400px; max-width: 90%; box-shadow: 0 20px 40px rgba(0,0,0,0.5); color: #fff; font-family: 'Inter', sans-serif; animation: slideUp 0.4s ease;">
+                            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                                <div style="background: rgba(46, 213, 115, 0.2); color: #2ed573; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                    </svg>
+                                </div>
+                                <h3 style="margin: 0; font-size: 1.2rem; font-weight: 600;">관리자 권한 인증 완료</h3>
+                            </div>
+                            <p style="color: #adb5bd; line-height: 1.6; margin-bottom: 25px; font-size: 0.95rem;">
+                                성공적으로 <strong>Administrator 권한</strong>이 확인되었습니다.<br><br>
+                                추후 이곳에 <strong>공지사항 작성 및 수정 기능</strong>이 연결될 예정입니다.
+                            </p>
+                            <button id="FemsAdminModalClose" style="width: 100%; padding: 12px; background: #3498db; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                                확인
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // 스타일 동적 추가 (애니메이션)
+                if (!document.getElementById("FemsAdminModalStyles")) {
+                    const style = document.createElement("style");
+                    style.id = "FemsAdminModalStyles";
+                    style.innerHTML = `
+                        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+                        #FemsAdminModalClose:hover { background: #2980b9 !important; }
+                    `;
+                    document.head.appendChild(style);
                 }
-            }
-            info += "✅ SessionStorage 관련 데이터:\n" + (ssAuthInfo.length > 0 ? ssAuthInfo.join("\n") : "없음");
 
-            alert(info);
-        });
+                // 모달을 플러그인 최상단 body에 주입
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+                // 닫기 버튼 이벤트
+                document.getElementById("FemsAdminModalClose").addEventListener("click", () => {
+                    const modal = document.getElementById("FemsAdminModal");
+                    if (modal) modal.remove();
+                });
+            });
+        } else {
+            // 일반 사용자(뷰어 등)인 경우 버튼을 완전히 삭제해서 숨김
+            adminBtn.remove();
+        }
     }
 }
 

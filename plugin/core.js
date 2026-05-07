@@ -14,6 +14,9 @@ export function initializePlugin(params, deps) {
         log 
     } = deps;
 
+    // 디버깅을 위해 파라미터를 전역에 임시 노출합니다.
+    window.__FEMS_PARAMS__ = params;
+
     let currentState = {
         sidebarItems,
         currentMainId: "dashboard",
