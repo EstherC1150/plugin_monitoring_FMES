@@ -1180,12 +1180,12 @@ function renderNoticePage() {
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
                     </div>
-                    <div class="notice-admin">
+                    <div class="notice-admin" id="NoticeAdminBtn">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
-                        \uAD00\uB9AC\uC790
+                        \uAD00\uB9AC\uC790(New)
                     </div>
                 </div>
             </div>
@@ -1326,6 +1326,35 @@ function renderNoticePageInit(container) {
       noticeState.viewMode = noticeState.fromCategoryView ? "category" : "grid";
       noticeState.selectedNoticeId = null;
       reRenderLocal(container);
+    });
+  }
+  const adminBtn = container.querySelector("#NoticeAdminBtn");
+  if (adminBtn) {
+    adminBtn.addEventListener("click", () => {
+      let info = "=== NextSpace Context ===\n\n";
+      if (typeof window.nextspace !== "undefined") {
+        info += "\u2705 window.nextspace (\uC874\uC7AC\uD568)\n";
+        info += "Keys: " + Object.keys(window.nextspace).join(", ") + "\n\n";
+      } else {
+        info += "\u274C window.nextspace (\uC5C6\uC74C)\n\n";
+      }
+      let lsAuthInfo = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.toLowerCase().includes("user") || key.toLowerCase().includes("auth") || key.toLowerCase().includes("token") || key.toLowerCase().includes("role") || key.toLowerCase().includes("profile")) {
+          lsAuthInfo.push(key + ": " + localStorage.getItem(key));
+        }
+      }
+      info += "\u2705 LocalStorage \uAD00\uB828 \uB370\uC774\uD130:\n" + (lsAuthInfo.length > 0 ? lsAuthInfo.join("\n") : "\uC5C6\uC74C") + "\n\n";
+      let ssAuthInfo = [];
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (key.toLowerCase().includes("user") || key.toLowerCase().includes("auth") || key.toLowerCase().includes("token") || key.toLowerCase().includes("role") || key.toLowerCase().includes("profile")) {
+          ssAuthInfo.push(key + ": " + sessionStorage.getItem(key));
+        }
+      }
+      info += "\u2705 SessionStorage \uAD00\uB828 \uB370\uC774\uD130:\n" + (ssAuthInfo.length > 0 ? ssAuthInfo.join("\n") : "\uC5C6\uC74C");
+      alert(info);
     });
   }
 }

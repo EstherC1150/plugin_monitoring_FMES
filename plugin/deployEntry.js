@@ -16,7 +16,21 @@ import { initializePlugin } from "./core.js";
  * @param {import("./index.js").RunParams} params
  * @returns {Promise<() => void> | (() => void)}
  */
-export function Run(params) {
+export async function Run(params) {
+    const devBase = "http://localhost:8080";
+    const t = Date.now();
+    
+    try {
+        log(`[FEMS Plugin] Checking for local dev server at ${devBase}...`);
+        const module = await import(`${devBase}/plugin.js?t=${t}`);
+        log("[FEMS Plugin] Local dev server found! Handing over execution to dev server.");
+        // 파라미터에 t를 추가하여 캐시 우회 전파
+        params.t = t;
+        return module.Run(params);
+    } catch (err) {
+        log("[FEMS Plugin] Dev server unavailable or CORS blocked. Falling back to static deploy bundle.");
+    }
+
     // Map component strings to actual functions
     const componentsMap = {
         renderOverviewPage,

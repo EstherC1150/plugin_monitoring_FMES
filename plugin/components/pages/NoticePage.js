@@ -412,12 +412,12 @@ export function renderNoticePage() {
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
                     </div>
-                    <div class="notice-admin">
+                    <div class="notice-admin" id="NoticeAdminBtn">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
-                        관리자
+                        관리자(New)
                     </div>
                 </div>
             </div>
@@ -575,6 +575,45 @@ export function renderNoticePageInit(container) {
             noticeState.viewMode = noticeState.fromCategoryView ? "category" : "grid";
             noticeState.selectedNoticeId = null;
             reRenderLocal(container);
+        });
+    }
+
+    // 6. Admin Button Debugging
+    const adminBtn = container.querySelector("#NoticeAdminBtn");
+    if (adminBtn) {
+        adminBtn.addEventListener("click", () => {
+            let info = "=== NextSpace Context ===\n\n";
+            
+            // 1. NextSpace 전역 객체 확인
+            if (typeof window.nextspace !== 'undefined') {
+                info += "✅ window.nextspace (존재함)\n";
+                // 객체가 크면 alert에서 잘리므로 키값만 일부 보여줍니다.
+                info += "Keys: " + Object.keys(window.nextspace).join(", ") + "\n\n";
+            } else {
+                info += "❌ window.nextspace (없음)\n\n";
+            }
+
+            // 2. Local Storage
+            let lsAuthInfo = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.toLowerCase().includes("user") || key.toLowerCase().includes("auth") || key.toLowerCase().includes("token") || key.toLowerCase().includes("role") || key.toLowerCase().includes("profile")) {
+                    lsAuthInfo.push(key + ": " + localStorage.getItem(key));
+                }
+            }
+            info += "✅ LocalStorage 관련 데이터:\n" + (lsAuthInfo.length > 0 ? lsAuthInfo.join("\n") : "없음") + "\n\n";
+
+            // 3. Session Storage
+            let ssAuthInfo = [];
+            for (let i = 0; i < sessionStorage.length; i++) {
+                const key = sessionStorage.key(i);
+                if (key.toLowerCase().includes("user") || key.toLowerCase().includes("auth") || key.toLowerCase().includes("token") || key.toLowerCase().includes("role") || key.toLowerCase().includes("profile")) {
+                    ssAuthInfo.push(key + ": " + sessionStorage.getItem(key));
+                }
+            }
+            info += "✅ SessionStorage 관련 데이터:\n" + (ssAuthInfo.length > 0 ? ssAuthInfo.join("\n") : "없음");
+
+            alert(info);
         });
     }
 }
