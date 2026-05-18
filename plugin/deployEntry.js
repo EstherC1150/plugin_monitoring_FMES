@@ -9,6 +9,9 @@ import { renderExternalShell, SHELL_STYLES } from "./components/layout/ExternalS
 import { renderOverviewPage } from "./components/pages/OverviewPage.js";
 import { renderNoticePage, renderNoticePageInit } from "./components/pages/NoticePage.js";
 import { renderEnergyPage } from "./components/pages/EnergyPage.js";
+import { renderEnergyIntegrationPage, renderEnergyPerformancePage, renderEnergyPerformancePageInit } from "./components/pages/EnergyIntegrationPage.js";
+import { renderRE100Page } from "./components/pages/RE100Page.js";
+import { renderRE100RenewablePage } from "./components/pages/RE100RenewablePage.js";
 import { log } from "./utils/Logger.js";
 import { initializePlugin } from "./core.js";
 
@@ -37,6 +40,11 @@ export async function Run(params) {
         renderNoticePage,
         renderNoticePageInit,
         renderEnergyPage,
+        renderEnergyIntegrationPage,
+        renderEnergyPerformancePage,
+        renderEnergyPerformancePageInit,
+        renderRE100Page,
+        renderRE100RenewablePage,
         renderBuildingPage: () => `<div style="padding:50px; text-align:center; color:#999;">건물별 상세 현황 페이지 준비 중...</div>`
     };
 

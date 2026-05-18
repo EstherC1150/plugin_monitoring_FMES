@@ -19,6 +19,9 @@ export async function Run(params) {
     const { renderOverviewPage } = await import(`./components/pages/OverviewPage.js${cacheBust}`);
     const { renderNoticePage, renderNoticePageInit } = await import(`./components/pages/NoticePage.js${cacheBust}`);
     const { renderEnergyPage } = await import(`./components/pages/EnergyPage.js${cacheBust}`);
+    const { renderEnergyIntegrationPage, renderEnergyPerformancePage, renderEnergyPerformancePageInit } = await import(`./components/pages/EnergyIntegrationPage.js${cacheBust}`);
+    const { renderRE100Page } = await import(`./components/pages/RE100Page.js${cacheBust}`);
+    const { renderRE100RenewablePage } = await import(`./components/pages/RE100RenewablePage.js${cacheBust}`);
     const { log } = await import(`./utils/Logger.js${cacheBust}`);
     const { initializePlugin } = await import(`./core.js${cacheBust}`);
 
@@ -28,6 +31,11 @@ export async function Run(params) {
         renderNoticePage,
         renderNoticePageInit,
         renderEnergyPage,
+        renderEnergyIntegrationPage,
+        renderEnergyPerformancePage,
+        renderEnergyPerformancePageInit,
+        renderRE100Page,
+        renderRE100RenewablePage,
         renderBuildingPage: () => `<div style="padding:50px; text-align:center; color:#999;">건물별 상세 현황 페이지 준비 중...</div>`
     };
 

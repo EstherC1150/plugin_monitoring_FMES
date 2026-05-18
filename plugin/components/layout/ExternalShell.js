@@ -147,9 +147,8 @@ export const SHELL_STYLES = `
 
     .dashboard-filter-bar {
         min-height: 58px;
-        background: white;
-        border-bottom: 1px solid var(--border-color);
-        padding: 10px 25px;
+        background: var(--bg-main);
+        padding: 15px 25px 0 25px;
         display: flex;
         align-items: center;
         gap: 10px;
@@ -161,37 +160,39 @@ export const SHELL_STYLES = `
         border: 1px solid #d2d8e2;
         border-radius: 19px;
         font-size: 14px;
-        color: var(--text-main);
+        color: var(--text-secondary);
         padding: 0 14px;
         background: #fff;
+        outline: none;
     }
 
-    select.filter-input {
-        min-width: 170px;
-    }
-
-    .filter-input[type="date"] {
-        min-width: 150px;
+    .filter-input:focus {
+        border-color: var(--hyundai-navy);
     }
 
     .filter-search-button {
         height: 38px;
-        min-width: 76px;
+        min-width: 80px;
         border: none;
         border-radius: 19px;
         background: var(--hyundai-blue);
         color: #fff;
         font-size: 14px;
-        font-weight: 600;
+        font-weight: 500;
         cursor: pointer;
         padding: 0 18px;
+        transition: background 0.2s;
+    }
+    
+    .filter-search-button:hover {
+        background: #1D3A6F;
     }
 
     .sub-tab {
         height: 100%;
         display: flex;
         align-items: center;
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 600;
         color: #888;
         cursor: pointer;
@@ -210,13 +211,13 @@ export const SHELL_STYLES = `
         left: 0;
         width: 100%;
         height: 3px;
-        background: var(--accent-green);
+        background: var(--accent-blue);
         border-radius: 3px 3px 0 0;
     }
 
     .content-viewport {
         flex: 1;
-        padding: 25px;
+        padding: 20px 25px 25px 25px;
         overflow-y: auto;
     }
 `;
@@ -239,6 +240,18 @@ export function renderExternalShell(state) {
             ${tab.title}
         </div>
     `).join("");
+
+    // Static Filter Bar HTML (Restored for core filtering functionality)
+    const filterBarHtml = `
+        <select class="filter-input" id="SiteFilterSelect">
+            <option value="all">전체 사업장</option>
+            <option value="ulsan">울산 사업장</option>
+            <option value="seosan">서산 사업장</option>
+            <option value="seongnam">성남 사업장</option>
+        </select>
+        <input class="filter-input" id="DateFilterInput" type="date" />
+        <button class="filter-search-button" id="DashboardSearchButton">조회</button>
+    `;
 
     return `
         <div id="PluginDashboardContainer">
@@ -265,14 +278,7 @@ export function renderExternalShell(state) {
                 </div>
 
                 <div class="dashboard-filter-bar" id="DashboardFilterBar">
-                    <select class="filter-input" id="SiteFilterSelect">
-                        <option value="all">전체 사업장</option>
-                        <option value="ulsan">울산 사업장</option>
-                        <option value="seosan">서산 사업장</option>
-                        <option value="seongnam">성남 사업장</option>
-                    </select>
-                    <input class="filter-input" id="DateFilterInput" type="date" />
-                    <button class="filter-search-button" id="DashboardSearchButton">조회</button>
+                    ${filterBarHtml}
                 </div>
 
                 <div class="content-viewport" id="ContentViewport">
@@ -282,3 +288,4 @@ export function renderExternalShell(state) {
         </div>
     `;
 }
+
